@@ -1,0 +1,96 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 //tasks:\
+\
+//1\
+//create 10 or more versions of the Agent class\
+//the easiest way to do this is by using an array - look at the "OOP_DATT3400" example\
+\
+//2 \
+//Place each circle at a different randomly assigned position \
+//Have each circle be a different randomly assigned size\
+\
+//3 \
+//If you are comfortable with the first two tasks make the circles move on the screen\
+\
+Agent[] agents;\
+\
+Agent myagent;\
+\
+void setup() \{\
+  size(600, 600);\
+  background(255);\
+\
+  agents = new Agent[10];\
+  \
+  for (int i = 0; i < agents.length; i++) \{\
+    agents[i] = new Agent(int(random(width)), int(random(height)), random(5));\
+  \}  \
+  \
+\}\
+\
+void draw() \{\
+  for (int i = 0; i < agents.length; i++) \{\
+    //visualise the draw_walk() function of the walker object - do this for every instance in the array\
+    agents[i].draw_agent();\
+\
+    //check the distance between walkers - we do this with a second loop.\
+\
+    for (int j = 0; j < agents.length; j++) \{\
+      //we check index i against all the other random walker positions - accessed using index j\
+\
+      //if else statement using the dist function\
+\
+      //info on the dist function - https://processing.org/reference/dist_.html\
+\
+      //if the distance is less than the drawline variable the code will connect the positions using a line\
+\
+      int drawline = 40;\
+\
+      if (dist(agents[i].x, agents[i].y, agents[j].x, agents[j].y) <= drawline) \{\
+        stroke(0, 50);\
+        strokeWeight(0.2);\
+        line(agents[i].x, agents[i].y, agents[j].x, agents[j].y);\
+      \}\
+    \}\
+  \}\
+\}\
+  \
+\
+//void mousePressed() \{\
+//  myagent = new Agent();\
+//\}\
+\
+\
+\
+class Agent \{\
+\
+  float x;\
+  float y;\
+  float esize = random(20);\
+  float speed;\
+\
+  color c = color(random(255), random(255), random(255), random(255));\
+\
+  Agent(int x, int y, float speed) \{    \
+    this.x = x;\
+    this.y = y;\
+    this.speed = speed;\
+  \}\
+\
+  void draw_agent() \{\
+    noStroke();\
+    fill(c);\
+    ellipse(x, y, esize, esize);\
+ \
+    \
+    x = x+int( random(-speed, speed) );\
+    y = y+int( random(-speed, speed) );\
+\
+  \}\
+\}}
