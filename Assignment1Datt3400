@@ -1,9 +1,9 @@
 /* There are 40 random stem start points for ferns to grow.
-// In an ecosystem of when plants grow too close each other,
-// some absolve more energy from the ground and get stronger and others get weeker.
-// Similar to the ecosystem, when two ferns get close enough, a stronger fern absolve an weeker one and get bigger and clearer(high alpha value).
-// If two ferns are same size, then one of ferns will absolve the other in random chance.
- Also when a fern grows, two leaves are connected as a stem.
+ In an ecosystem of plants grow too close each other,
+ some absolve more energy than others from the ground and to stronger and weaken others.
+ Similar to the ecosystem, when two ferns get close enough, a stronger fern absolves a weaker one to get bigger and clearer(high alpha value).
+ If two ferns are the same size, then one of ferns will absolve the other in randomly.
+ Also when a fern grows, two leaves are connected to the stem.
 */
 
 // Initialize Fern class array
