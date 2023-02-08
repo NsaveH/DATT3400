@@ -1,0 +1,260 @@
+/* There are 40 random stem start points for ferns to grow.
+// In an ecosystem of when plants grow too close each other,
+// some absolve more energy from the ground and get stronger and others get weeker.
+// Similar to the ecosystem, when two ferns get close enough, a stronger fern absolve an weeker one and get bigger and clearer(high alpha value).
+// If two ferns are same size, then one of ferns will absolve the other in random chance.
+ Also when a fern grows, two leaves are connected as a stem.
+*/
+
+// Initialize Fern class array
+Fern[] ferns;
+int num = 40;  // Total number of ferns
+int drawline = 50;  // Distance between stem points to connect or absolve
+float stemWeight = 2.5;  // StrokeWeight for stem
+
+
+// Setup canvas and Fern class
+void setup() {
+  size(1000, 1000);  // Create 1000, 1000 canvas
+  background(255);  // Set background to white
+  
+  ferns = new Fern[num];
+  for(int i = 0; i < num; i++)
+  {
+    ferns[i] = new Fern(random(width), random(height));  // Initialize fern class
+  }
+}
+
+// Draw on the canvas
+void draw() {
+  for(int i = 0; i < num; i++)
+  {
+    // Check the fern is alive
+    if(!ferns[i].absolved)
+    {
+      ferns[i].draw_fern();
+      
+      for(int j = 0; j < num; j++)
+      {
+        // Check two ferns are not identical and comparing fern is alive
+        if(i != j && !ferns[j].absolved)
+        {
+          // Compute distance between two ferns
+          float distance = dist(ferns[i].x[1], ferns[i].y[1], ferns[j].x[1], ferns[j].y[1]);
+          if(distance <= drawline)
+          {
+            // Comapare two ferns
+            // Bigger fern will absolve smaller one
+            // If they are same size, one of them will absolve the other with random chance
+            if(compare(ferns[i], ferns[j]))
+            {
+              absolve(ferns[i], ferns[j]);
+              stroke(ferns[i].point.c);
+            }
+            else
+            {
+              absolve(ferns[j], ferns[i]);
+              stroke(ferns[j].point.c);
+            }
+            
+            strokeWeight(stemWeight);
+            line(ferns[i].x[1], ferns[i].y[1], ferns[j].x[1], ferns[j].y[1]);
+          }
+        }
+      }
+    }
+  }
+  delay(10);
+}
+
+// Compare two ferns
+// Return true if f1 absolves f2, false if not
+boolean compare(Fern f1, Fern f2)
+{
+  if(f1.point.scale == f2.point.scale)
+  {
+    return random(1) < 0.5;
+  }
+  else if(f1.point.scale < f2.point.scale)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  } 
+}
+
+// The f1 absolves the f2
+// Update f1's color and f2's absolved condition
+void absolve(Fern f1, Fern f2)
+{
+  f1.point.absolvedFern();
+  f2.absolved = true;
+}
+ 
+ 
+
+
+// Fern class
+class Fern
+{
+  // Initialize position array to store current position and previous position.
+  // e.g. xPos[0] -> previous x position, xPos[1] -> current x position
+  float[] x = new float[2];
+  float[] y = new float[2];
+  float speed;
+  
+  // Initialize point for drawing fern with points
+  Point point = new Point();
+  
+  // Dot variables
+  int totalDots; // total Dots to draw the fern
+  int numOfDots;
+  int drawMaxDots;
+  
+  boolean absolved;
+  
+  // Constructor
+  Fern(float x, float y) {
+    this.x[1] = x;
+    this.y[1] = y;
+    this.speed = random(30, 50);
+    setupDots();
+    absolved = false;
+    point.setPoint(this.x[1], this.y[1]);
+  }
+  
+  void draw_fern()
+  {
+    fill(point.c);
+    
+    // Draw fern if fern is not completely drawn
+    if(numOfDots <= totalDots)
+    {
+      for(int i = 0; i < drawMaxDots; i++) {
+        point.drawPoint();
+        point.nextPoint();
+        numOfDots++;
+      }
+    }
+    // Move stem position, reset dot variables, and update stem point stored in point class
+    else
+    {
+      setupDots();
+      // Update previous location to current location
+      x[0] = x[1];
+      y[0] = y[1];
+      // Randomly move current point
+      x[1] = x[1] + random(-speed, speed);
+      y[1] = y[1] + random(-speed, speed);
+      point.setPoint(x[1], y[1]);
+      connect();
+    }
+  }
+  
+  // Connect stem points together to create vine
+  void connect()
+  {
+    stroke(point.c);
+    strokeWeight(stemWeight);
+    line(this.x[0], this.y[0], this.x[1], this.y[1]);
+  }
+  
+  // Reset dot variables
+  void setupDots()
+  {
+    totalDots = int(random(1600, 2000));
+    numOfDots = 0;
+    drawMaxDots = totalDots / 10;
+  }
+}
+
+
+// Point class
+class Point
+{
+  // Stem position
+  float stemX;
+  float stemY;
+  
+  // Point position
+  float x;
+  float y;
+  
+  float scale = 30;
+  float alpha = random(20, 30);
+  float dotSize = 1;
+  
+  color c = color(random(255), random(255), random(255), alpha);
+  float rotateDegree;
+  
+  // offset value to move entire points set to the origin top left corner
+  // therefore, the bud is located on origin for rotation
+  float offset = width / 2.23;  
+  
+  void setPoint(float stemX, float stemY)
+  {
+    this.stemX = stemX;
+    this.stemY = stemY;
+    this.x = 0;
+    this.y = 0;
+    rotateDegree = radians(random(360));
+  }
+  
+  void absolvedFern()
+  {
+    this.scale *= 0.7;
+    this.alpha *= 2;
+    this.dotSize += 0.5;
+  }
+  
+  // Referenced from https://en.wikipedia.org/wiki/Barnsley_fern
+  void drawPoint()
+  {
+    stroke(0, 0, 0, 50);
+    strokeWeight(0.01);
+    // Map fern points to 100% canvas size and locate on the origin (top left corner)
+    float tempPx = map(x, -2.1820, 2.6558, 0, width) - offset;
+    float tempPy = map(y, 0, 9.9983, height, 0) - height;
+    
+    // Rotate mapped point about the origin by using affine transformation
+    float px = (tempPx * cos(rotateDegree)) - (tempPy * sin(rotateDegree));
+    float py = (tempPx * sin(rotateDegree)) + (tempPy * cos(rotateDegree));
+    
+    // Scale fern
+    px /= scale;
+    py /= scale;
+    
+    // Translate to stem position
+    px += stemX;
+    py += stemY;
+
+    fill(c);
+    //point(px, py);
+
+    ellipse(px, py, dotSize, dotSize);
+  }
+  
+  // Referenced from https://en.wikipedia.org/wiki/Barnsley_fern
+  void nextPoint()
+  {
+    float nextX, nextY;
+    float r = random(1);
+    if (r < 0.01) {
+      nextX =  0;
+      nextY =  0.16 * y;
+    } else if (r < 0.86) {
+      nextX =  0.85 * x + 0.04 * y;
+      nextY = -0.04 * x + 0.85 * y + 1.6;
+    } else if (r < 0.93) {
+      nextX =  0.20 * x - 0.26 * y;
+      nextY =  0.23 * x + 0.22 * y + 1.6;
+    } else {
+      nextX = -0.15 * x + 0.28 * y;
+      nextY =  0.26 * x + 0.24 * y + 0.44;
+    }
+    x = nextX;
+    y = nextY;
+  }
+}
